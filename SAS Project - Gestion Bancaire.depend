@@ -1,0 +1,6 @@
+# depslib dependency file v1.0
+1637676781 source:c:\users\youcode\documents\sas project - gestion bancaire\main.c
+	<stdio.h>
+	<string.h>
+	<windows.h>
+
