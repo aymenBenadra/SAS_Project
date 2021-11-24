@@ -69,10 +69,11 @@ int main()
         printf("#############################--MAIN MENU--#############################\n\n");
         printf("1: Create Account\t2: Create multiple Accounts\t3: Use test Accounts\n");
         printf("4: Operations\t5: Display\t6: Loyalty Bonus\t7: Change Primary Account\n");
+        printf("8: Save accounts to file\t9: Load accounts from save file\n");
         printf("0: EXIT\n\n:::");
         scanf("%d", &choice);
         getc(stdin);
-    } while(choice < 0 || choice > 7);
+    } while(choice < 0 || choice > 9);
 
     switch(choice){
     case 0:
@@ -141,6 +142,35 @@ int main()
             break;
         }
         changePrimaryAccount();
+        system("pause");
+        goto MAIN_MENU;
+        break;
+    case 8:
+        if(nOfAccounts == 0){
+            printf("/!\\You Can't access these features unless you create 1 or more accounts,/!\\\n/!\\Please Create an Account or generate a test account from the Menu./!\\\n");
+            system("pause");
+            goto MAIN_MENU;
+            break;
+        }
+        printf("Saving to file.");
+        Sleep(SLEEP_IN_ANIMATION);
+        printf(".");
+        Sleep(SLEEP_IN_ANIMATION);
+        printf(".\n");
+        saveToFile();
+        system("pause");
+        goto MAIN_MENU;
+        break;
+    case 9:
+        printf("Loading from file.");
+        Sleep(SLEEP_IN_ANIMATION);
+        printf(".");
+        Sleep(SLEEP_IN_ANIMATION);
+        printf(".\n");
+        openFromFile();
+        if(nOfAccounts != 0){
+            changePrimaryAccount();
+        }
         system("pause");
         goto MAIN_MENU;
         break;
@@ -316,7 +346,7 @@ void printAccounts(double min, int nOfLines){
     for(i=0; i<nOfLines; i++){
         if(accounts[i].montant < min)
             continue;
-        printf("Account N%d:\nCIN: %s\tName: %s\tMontant: %.2lf\n", i+1, accounts[i].CIN, accounts[i].nomPrenom, accounts[i].montant);
+        printf("Account N_%d:\nCIN: %s\tName: %s\tMontant: %.2lf\n", i+1, accounts[i].CIN, accounts[i].nomPrenom, accounts[i].montant);
     }
 }
 
@@ -432,6 +462,11 @@ void generateTestAccount() {
     int index, i;
     char temp[8], charset[] = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
+    if(nOfAccounts == 100){
+        printf("/!\\Number of accounts is limited to 100./!\\\n");
+        return;
+    }
+
     // Generating random Name
     for(i = 0; i< 6; i++) {
         index = rand() % (sizeof(charset)/sizeof(charset[0]));
@@ -540,6 +575,11 @@ void showDisplayMenu(){
 
 }
 
+/** \brief A function to change the primary account of operations to an account of choice
+ *
+ * \return void
+ *
+ */
 void changePrimaryAccount(){
     int choice;
     printAccounts(0, nOfAccounts);
@@ -552,20 +592,45 @@ void changePrimaryAccount(){
     printf("Changed Successfully!");
 }
 
+/** \brief A function to save accounts to file to load afterwards
+ *
+ * \return void
+ *
+ */
 void saveToFile(){
+    int i;
     FILE *fptr;
-    fptr = fopen("C:\\program.txt","a+");
+    fptr = fopen("accounts.txt","a+");
 
-
-
-    fclose(fptr);
+    if(fptr == NULL){
+      printf("/!\\Permission denied./!\\\n");
+    } else {
+        for(i = 0; i< nOfAccounts; i++){
+            fprintf(fptr, "%s\n%s\n%.2lf\n\n", accounts[i].CIN, accounts[i].nomPrenom, accounts[i].montant);
+        }
+        printf("Saved %d accounts Successfully!\n", nOfAccounts);
+        fclose(fptr);
+    }
 }
 
-void openFromFile(){
+/** \brief A function to load accounts from save file into accounts array
+ *
+ * \return void
+ *
+ */
+void openFromFile(){    int i = 0;
     FILE *fptr;
-    fptr = fopen("C:\\program.txt","r");
+    fptr = fopen("accounts.txt","r");
 
+    if(fptr == NULL){
+      printf("/!\\Save file Can't be loaded./!\\\n");
+    } else {
+        while(fscanf(fptr,"%s\n%s\n%lf\n\n", accounts[i].CIN, accounts[i].nomPrenom, &accounts[i].montant) != EOF && nOfAccounts < 100){
+            nOfAccounts++;
+            i++;
+        }
 
-
-    fclose(fptr);
+        printf("Loaded %d accounts from save file...\n", nOfAccounts);
+        fclose(fptr);
+    }
 }
